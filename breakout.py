@@ -35,8 +35,6 @@ class Wall():
                 self.x += brick.width + 2
             self.y += brick.height + 2
 
-
-
 class Paddle(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -45,7 +43,7 @@ class Paddle(pygame.sprite.Sprite):
         self.x = WIDTH/2 - self.width/2
         self.y = 600
         self.image = pygame.Surface((self.width, self.height))
-        self.image.fill((250, 250, 250))
+        self.image.fill("white")
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
         self.vel = 5
 
@@ -57,18 +55,44 @@ class Paddle(pygame.sprite.Sprite):
         self.rect.x = self.x
 
 
-class Ball():
-    pass
+class Ball(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.width, self.height = 20, 20
+        self.x = WIDTH/2 - 50
+        self.y = 300
+        self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, "white", (10, 10), 10)
+        self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        self.vel = 4
+
+    def start(self):
+        pass
+
+    def move(self):
+        pass
 
 def main():
     FPS = 60
     clock = pygame.time.Clock()
 
+    #create game objects
     paddle = Paddle()
+    ball = Ball()
     wall = Wall()
     wall.build()
-    sprites_list = pygame.sprite.Group()
-    sprites_list.add(paddle, wall.brick_list)
+
+    #create sprite groups
+    paddle_group = pygame.sprite.Group()
+    ball_group = pygame.sprite.Group()
+    brick_group = pygame.sprite.Group()
+    sprites_group = pygame.sprite.Group()
+
+    #add sprites to groups
+    paddle_group.add(paddle)
+    ball_group.add(ball)
+    brick_group.add(wall.brick_list)
+    sprites_group.add(paddle, ball, wall.brick_list)
 
 
     running = True
@@ -84,10 +108,10 @@ def main():
         keys = pygame.key.get_pressed()
         paddle.move(keys)
 
-        sprites_list.update()
+        sprites_group.update()
         
         WINDOW.fill(BACKGROUND)
-        sprites_list.draw(WINDOW)
+        sprites_group.draw(WINDOW)
         pygame.display.flip()
 
 
