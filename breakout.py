@@ -1,4 +1,5 @@
 import pygame
+import time
 from pygame.locals import *
 
 pygame.init()
@@ -8,6 +9,20 @@ WIDTH, HEIGHT = 1280, 720
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Breakout!")
 BACKGROUND = (10, 0, 15)
+
+font = pygame.font.Font(None, 50)
+
+def display_text(desired_text):
+    text = desired_text
+    text_display = font.render(text, True, "white", BACKGROUND)
+    text_rect = text_display.get_rect()
+    text_rect.center = (WIDTH//2, 40)
+    WINDOW.blit(text_display, text_rect)
+
+def start_game(ball):
+    #need to figure out a good way to change display text and add countdown
+    ball.move()
+
 
 class Brick(pygame.sprite.Sprite):
     def __init__(self, x, y, color):
@@ -64,13 +79,16 @@ class Ball(pygame.sprite.Sprite):
         self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         pygame.draw.circle(self.image, "white", (10, 10), 10)
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        self.vel = 4
+        self.vel = 2
+        self.hit = False
 
     def start(self):
         pass
 
     def move(self):
-        pass
+        if not self.hit and self.y < 700:
+            self.y += self.vel
+            self.rect.y = self.y
 
 def main():
     FPS = 60
@@ -94,8 +112,8 @@ def main():
     brick_group.add(wall.brick_list)
     sprites_group.add(paddle, ball, wall.brick_list)
 
-
     running = True
+    game_started = False
 
     while running:
         clock.tick(FPS)
@@ -103,6 +121,12 @@ def main():
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP and not game_started:
+                    game_started = True
+
+        if game_started:
+            start_game(ball)
 
         #check for paddle movement
         keys = pygame.key.get_pressed()
@@ -111,6 +135,8 @@ def main():
         sprites_group.update()
         
         WINDOW.fill(BACKGROUND)
+        display_text("Press UP to start")
+
         sprites_group.draw(WINDOW)
         pygame.display.flip()
 
